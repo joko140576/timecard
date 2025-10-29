@@ -36,9 +36,16 @@
       <ol class="mb-2">
         <li>Isi <b>Tanggal</b>, <b>Nama</b>, dan <b>NPP</b> sesuai identitas pegawai.</li>
         <li>Pilih <b>Divisi</b> dan <b>Jabatan</b> dari daftar pilihan yang tersedia.</li>
-        <li>Isi tabel <b>Uraian Tugas</b> dengan deskripsi pekerjaan, volume, dan waktu (jam).</li>
-        <li>Gunakan tombol <b>+ Tambah Baris</b> untuk menambah tugas.</li>
-        <li>Setelah semua lengkap, klik <b>Kirim ke Google Sheet</b>.</li>
+        <li>Di tabel <b>Uraian Tugas</b>:
+          <ul>
+            <li>Tulis deskripsi tugas harian di kolom <b>Uraian Tugas</b>.</li>
+            <li>Isi jumlah pekerjaan di kolom <b>Volume</b>.</li>
+            <li>Isi waktu yang dihabiskan dalam <b>jam</b>.</li>
+          </ul>
+        </li>
+        <li>Klik tombol <b>+ Tambah Baris</b> jika ada tugas tambahan.</li>
+        <li>Setelah semua terisi, klik <b>Kirim ke Google Sheet</b> untuk menyimpan.</li>
+        <li>Data otomatis masuk ke sheet sesuai divisi Anda (HCC, INA, PML, atau OPR).</li>
       </ol>
       <p class="text-muted fst-italic mb-0">Tip: Gunakan HP dalam mode potrait agar tampilan lebih nyaman.</p>
     </div>
@@ -69,8 +76,8 @@
             <option>HCC</option>
             <option>INA</option>
             <option>MBD</option>
-            <option>OPR1</option>
-            <option>OPR2</option>
+            <option>OPR-1</option>
+            <option>OPR-2</option>
             <option>OPS</option>
             <option>PLM</option>
             <option>SBD</option>
@@ -94,7 +101,8 @@
       <table class="table table-bordered align-middle" id="taskTable">
         <thead class="table-light">
           <tr>
-            <th>Uraian Tugas</th>
+            <th>Jenis Pekerjaan</th>
+            <th>Uraian Pekerjaan</th>
             <th>Volume</th>
             <th>Waktu (jam)</th>
             <th>Aksi</th>
@@ -102,6 +110,7 @@
         </thead>
         <tbody>
           <tr>
+            <td><input type="text" class="form-control jenis"></td>
             <td><input type="text" class="form-control uraian"></td>
             <td><input type="number" class="form-control volume"></td>
             <td><input type="number" class="form-control waktu"></td>
@@ -119,31 +128,11 @@
         <button type="submit" class="btn btn-primary px-4">Kirim ke Google Sheet</button>
       </div>
     </form>
-
-    <!-- Tombol Lihat Spreadsheet -->
-    <div class="text-center mt-3">
-      <button id="btnLihatSheet" class="btn btn-outline-secondary" disabled>📄 Lihat Data Spreadsheet</button>
-    </div>
-
   </div>
 </div>
 
 <script>
-const scriptURL = "https://script.google.com/macros/s/AKfycbw_buQbikvU1zARgkb1Uv87pKnuNiUDozNFij4lnIWyz1-40tuiNGvA_G5elf0vZX7VzQ/exec"; // ganti dengan URL Web App kamu
-
-// === Link Google Sheet per Divisi ===
-const sheetLinks = {
-  CSI: "https://docs.google.com/spreadsheets/d/14a0bIx9XkbHjC2OZ4iGhpdH1lVJP10IVlIisS_DxCkU/edit?gid=85637155#gid=85637155",
-  FRM: "https://docs.google.com/spreadsheets/d/14a0bIx9XkbHjC2OZ4iGhpdH1lVJP10IVlIisS_DxCkU/edit?gid=1142330213#gid=1142330213", 
-  HCC: "https://docs.google.com/spreadsheets/d/14a0bIx9XkbHjC2OZ4iGhpdH1lVJP10IVlIisS_DxCkU/edit?gid=288553795#gid=288553795",
-  INA: "https://docs.google.com/spreadsheets/d/14a0bIx9XkbHjC2OZ4iGhpdH1lVJP10IVlIisS_DxCkU/edit?gid=1436269362#gid=1436269362",
-  MBD: "https://docs.google.com/spreadsheets/d/14a0bIx9XkbHjC2OZ4iGhpdH1lVJP10IVlIisS_DxCkU/edit?gid=1533518746#gid=1533518746",
-  OPR1: "https://docs.google.com/spreadsheets/d/14a0bIx9XkbHjC2OZ4iGhpdH1lVJP10IVlIisS_DxCkU/edit?gid=1428604034#gid=1428604034",
-  OPR2: "https://docs.google.com/spreadsheets/d/14a0bIx9XkbHjC2OZ4iGhpdH1lVJP10IVlIisS_DxCkU/edit?gid=980599738#gid=980599738",
-  OPS: "https://docs.google.com/spreadsheets/d/14a0bIx9XkbHjC2OZ4iGhpdH1lVJP10IVlIisS_DxCkU/edit?gid=1982961297#gid=1982961297",
-  PLM: "https://docs.google.com/spreadsheets/d/14a0bIx9XkbHjC2OZ4iGhpdH1lVJP10IVlIisS_DxCkU/edit?gid=1347470348#gid=1347470348",
-  SBD: "https://docs.google.com/spreadsheets/d/14a0bIx9XkbHjC2OZ4iGhpdH1lVJP10IVlIisS_DxCkU/edit?gid=1676608116#gid=1676608116"
-};
+const scriptURL = "https://script.google.com/macros/s/AKfycbxU3q5GBBH2dLcOt_NZPlVVhhcG7uUiNqEhobyAimDkmB7d6930ld2dcnNjl1VHvV3Taw/exec"; // ganti dengan URL Web App kamu
 
 // === Tampilkan / sembunyikan panduan ===
 document.getElementById("btnGuide").addEventListener("click", () => {
@@ -156,6 +145,7 @@ function tambahBaris() {
   const tbody = document.querySelector("#taskTable tbody");
   const row = document.createElement("tr");
   row.innerHTML = `
+    <td><input type="text" class="form-control jenis"></td>
     <td><input type="text" class="form-control uraian"></td>
     <td><input type="number" class="form-control volume"></td>
     <td><input type="number" class="form-control waktu"></td>
@@ -183,6 +173,7 @@ document.getElementById("timeCardForm").addEventListener("submit", e => {
   e.preventDefault();
 
   const tasks = [...document.querySelectorAll("#taskTable tbody tr")].map(tr => ({
+    jenis: tr.querySelector(".jenis").value,
     uraian: tr.querySelector(".uraian").value,
     volume: tr.querySelector(".volume").value,
     waktu: tr.querySelector(".waktu").value
@@ -206,11 +197,6 @@ document.getElementById("timeCardForm").addEventListener("submit", e => {
     alert("✅ Data berhasil dikirim ke Google Sheets divisi: " + data.divisi);
     document.getElementById("timeCardForm").reset();
     document.getElementById("totalWaktu").innerText = "0";
-
-    // Aktifkan tombol lihat sheet
-    const btnSheet = document.getElementById("btnLihatSheet");
-    btnSheet.disabled = false;
-    btnSheet.onclick = () => window.open(sheetLinks[data.divisi], "_blank");
   })
   .catch(err => alert("❌ Gagal kirim data: " + err));
 });
