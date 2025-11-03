@@ -40,11 +40,9 @@
         <li>Isi <b>Tanggal</b>, <b>Nama</b>, dan <b>NPP</b>.</li>
         <li>Pilih <b>Divisi</b> dan <b>Jabatan</b>.</li>
         <li>Untuk setiap kolom , klik kolom untuk membuka jendela input.</li>
-        <li>Isi jenis pekerjaan , isi uraian nya , isi volume/banyaknya , dan isi waktunya dalam jam </li>
+        <li>Isi jenis pekerjaan , isi uraian nya , isi volume/banyaknya , dan isi waktunya dalam menit </li>
         <li>Klik tombol <b>+ Tambah Baris</b> untuk menambah tugas.</li>
         <li>Setelah selesai, klik <b>Kirim ke Google Sheet</b>.</li>
-        <h5 style="color: darkred;">contoh</h5>
-        <img src="image.JPG" alt="image" border="0" width="350" height="150" >
       </ol>
       <p class="text-muted fst-italic mb-0">Gunakan HP dalam mode potrait agar tampilan lebih nyaman.</p>
     </div>
@@ -94,7 +92,7 @@
               <th>Jenis Pekerjaan</th>
               <th>Uraian Pekerjaan</th>
               <th>Volume/banyaknya</th>
-              <th>Jam/durasi</th>
+              <th>Durasi(Menit)</th>
               <th>Aksi hapus</th>
             </tr>
           </thead>
@@ -220,7 +218,7 @@ document.getElementById("timeCardForm").addEventListener("submit", e => {
   fetch(scriptURL, { method: "POST", body: JSON.stringify(data) })
   .then(res => res.text())
   .then(() => {
-    alert("✅ Data berhasil dikirim ke Google Sheets divisi: " + data.divisi);
+    alert("✅ Terima Kasih data sudah berhasil dikirim : " + data.divisi);
     document.getElementById("timeCardForm").reset();
     document.getElementById("totalWaktu").innerText = "0";
   })
