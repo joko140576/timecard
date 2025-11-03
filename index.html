@@ -110,11 +110,11 @@
 
       <div class="d-flex justify-content-between mt-2">
         <button type="button" class="btn btn-success" onclick="tambahBaris()">+ Tambah Baris</button>
-        <h6>Total Waktu: <span id="totalWaktu">0</span> jam</h6>
+        <h6>Total Waktu: <span id="totalWaktu">0</span> menit</h6>
       </div>
 
       <div class="text-center mt-4">
-        <button type="submit" class="btn btn-primary px-4">Kirim ke Google Sheet</button>
+        <button type="submit" class="btn btn-primary px-4">submit/kirim </button>
       </div>
     </form>
   </div>
@@ -179,7 +179,7 @@ document.addEventListener("click", e => {
   if (e.target.classList.contains("form-control") && e.target.readOnly) {
     currentInput = e.target;
     const header = e.target.closest("td").cellIndex;
-    const labelText = ["Jenis Pekerjaan", "Uraian Pekerjaan", "Volume", "Waktu (jam)"][header] || "Isi Data";
+    const labelText = ["Jenis Pekerjaan", "Uraian Pekerjaan", "Volume", "Waktu (menit)"][header] || "Isi Data";
     document.getElementById("modalLabel").innerText = labelText;
     const modalInput = document.getElementById("modalInput");
     modalInput.value = currentInput.value;
