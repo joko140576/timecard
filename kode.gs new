@@ -1,0 +1,44 @@
+function doPost(e) { 
+  const data = JSON.parse(e.postData.contents);
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const divisi = data.divisi || "Lainnya";
+  let sheet = ss.getSheetByName(divisi);
+
+  // Jika sheet belum ada → buat baru + header
+  if (!sheet) {
+    sheet = ss.insertSheet(divisi);
+    sheet.appendRow([
+      "Timestamp", "Tanggal", "Nama", "NPP", "Divisi",
+      "Jabatan", "Jenis Pekerjaan", "Uraian Tugas",
+      "Jam", "Menit", "Total Menit"
+    ]);
+  }
+
+  // Simpan setiap tugas
+  data.tasks.forEach(row => {
+    const jam = Number(row.jam) || 0;
+    const menit = Number(row.waktu) || 0;
+    const totalMenit = (jam * 60) + menit;
+
+    sheet.appendRow([
+      new Date(),
+      data.tanggal,
+      data.nama,
+      data.npp,
+      data.divisi,
+      data.jabatan,
+      row.jenis,
+      row.uraian,
+      jam,
+      menit,
+      totalMenit
+    ]);
+  });
+
+  return ContentService
+    .createTextOutput("OK")
+    .setMimeType(ContentService.MimeType.TEXT);
+}
+
+
+
