@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Data Divisi</title>
+
+  <!-- BOOTSTRAP -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background: #eef3f8;
+      padding: 20px;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .card {
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    table th {
+      background: #0d6efd !important;
+      color: white !important;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="card p-4">
+
+    <h3 class="mb-4 text-center fw-bold text-primary">
+      DATA DIVISI – 50 BARIS TERBARU
+    </h3>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Pilih Divisi:</label>
+        <select id="divisi" class="form-select form-select-lg">
+          <option value="csi">CSI</option>
+          <option value="hcc">HCC</option>
+          <option value="ops">OPS</option>
+          <option value="opr-1">OPR-1</option>
+          <option value="opr-2">OPR-2</option>
+          <option value="plm">PLM</option>
+          <option value="frm">FRM</option>
+          <option value="mbs">MBS</option>
+          <option value="sbd">SBD</option>
+          <option value="ina">INA</option>
+        </select>
+      </div>
+
+      <div class="col-md-6 d-flex align-items-end">
+        <button onclick="loadData()" class="btn btn-primary btn-lg w-100">
+          Tampilkan Data
+        </button>
+      </div>
+    </div>
+
+    <hr class="my-4">
+
+    <!-- TABLE RESPONSIF -->
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped table-hover" id="tabelData">
+        <thead id="thead"></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbzo2CtZ4Y9rUd3jn1Tnez-9O-rJxh98yn_Cbgvy8ZW-NwcmOaQv3E43L9A_g3yTnfEbvw/exec";
+
+// Format tanggal menjadi dd-mm-yyyy
+function formatTanggal(tgl) {
+    if (!tgl) return "";
+    const date = new Date(tgl);
+    if (isNaN(date)) return tgl; // kalau bukan tanggal, biarkan apa adanya
+
+    const d = String(date.getDate()).padStart(2, '0');
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const y = date.getFullYear();
+
+    return `${d}-${m}-${y}`;
+}
+
+async function loadData() {
+    const divisi = document.getElementById("divisi").value;
+
+    const res = await fetch(`${API_URL}?sheet=${divisi}`);
+    const json = await res.json();
+
+    const data = json.data;
+
+    const thead = document.getElementById("thead");
+    const tbody = document.getElementById("tbody");
+
+    thead.innerHTML = "";
+    tbody.innerHTML = "";
+
+    if (!data || data.length === 0) return;
+
+    // ===== FIXED HEADER =====
+    const fixedHeader = [
+        "Timestamp", "Tanggal", "Nama", "NPP", "Divisi", "Jabatan",
+        "Jenis Pekerjaan", "Uraian Tugas", "jam", "menit", "total menit"
+    ];
+
+    let headerHTML = "<tr>";
+    fixedHeader.forEach(h => headerHTML += `<th>${h}</th>`);
+    headerHTML += "</tr>";
+    thead.innerHTML = headerHTML;
+
+    // ===== ISI DATA =====
+    data.slice(1).forEach(row => {
+        let rowHTML = "<tr>";
+
+        fixedHeader.forEach((_, index) => {
+            let cell = row[index] !== undefined ? row[index] : "";
+
+            // Format kolom ke-2 (Tanggal)
+            if (index === 1) {
+                cell = formatTanggal(cell);
+            }
+
+            rowHTML += `<td>${cell}</td>`;
+        });
+
+        rowHTML += "</tr>";
+        tbody.innerHTML += rowHTML;
+    });
+}
+</script>
+
+
+
+<!-- BOOTSTRAP JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
