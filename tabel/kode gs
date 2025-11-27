@@ -1,0 +1,28 @@
+function doGet(e) {
+  const ss = SpreadsheetApp.openById("12o8jmr9L38XAoRcd0BZev-TOOQC5QLr4H0AnfCLlXok");
+
+  const sheetName = e.parameter.sheet;
+  if (!sheetName) {
+    return ContentService.createTextOutput(JSON.stringify({
+      error: "Missing ?sheet="
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  const sheet = ss.getSheetByName(sheetName);
+  if (!sheet) {
+    return ContentService.createTextOutput(JSON.stringify({
+      error: "Sheet not found"
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  let data = sheet.getDataRange().getValues();
+
+  // Ambil 50 baris terakhir
+  if (data.length > 50) {
+    data = data.slice(data.length - 50);
+  }
+
+  return ContentService
+    .createTextOutput(JSON.stringify({ data }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
