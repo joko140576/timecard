@@ -30,7 +30,7 @@
     }
 
     table td, table th {
-      white-space: nowrap; /* Supaya tabel tidak memaksa mengecil */
+      white-space: nowrap;
       font-size: 14px;
     }
 
@@ -40,7 +40,6 @@
       text-transform: uppercase;
     }
 
-    /* Jarak & ukuran komponen di HP */
     @media (max-width: 576px) {
       h3 {
         font-size: 18px;
@@ -48,6 +47,27 @@
       select, button {
         font-size: 16px !important;
       }
+    }
+
+    /* === LOADING ANIMATION === */
+    #loader {
+      display: none;
+      text-align: center;
+      padding: 15px;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 6px solid #d1d1d1;
+      border-top-color: #0d6efd;
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+      margin: auto;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
   </style>
 </head>
@@ -86,6 +106,12 @@
 
     <hr class="my-3">
 
+    <!-- LOADING ANIMATION -->
+    <div id="loader">
+      <div class="spinner"></div>
+      <p class="mt-2 fw-semibold text-primary">Mengambil data, mohon tunggu...</p>
+    </div>
+
     <div class="table-responsive">
       <table class="table table-bordered table-striped table-hover" id="tabelData">
         <thead id="thead"></thead>
@@ -112,41 +138,51 @@ function formatTanggal(tgl) {
 
 async function loadData() {
   const divisi = document.getElementById("divisi").value;
+  const loader = document.getElementById("loader");
+  
+  loader.style.display = "block";   // Tampilkan loading
+  document.getElementById("thead").innerHTML = "";
+  document.getElementById("tbody").innerHTML = "";
 
-  const res = await fetch(`${API_URL}?sheet=${divisi}`);
-  const json = await res.json();
+  try {
+    const res = await fetch(`${API_URL}?sheet=${divisi}`);
+    const json = await res.json();
 
-  const data = json.data;
-  const thead = document.getElementById("thead");
-  const tbody = document.getElementById("tbody");
+    const data = json.data;
+    const thead = document.getElementById("thead");
+    const tbody = document.getElementById("tbody");
 
-  thead.innerHTML = "";
-  tbody.innerHTML = "";
+    if (!data || data.length === 0) {
+      loader.style.display = "none";
+      return;
+    }
 
-  if (!data || data.length === 0) return;
+    const fixedHeader = [
+      "Timestamp", "Tanggal", "Nama", "NPP", "Divisi", "Jabatan",
+      "Jenis Pekerjaan", "Uraian Tugas", "jam", "menit", "total menit"
+    ];
 
-  const fixedHeader = [
-    "Timestamp", "Tanggal", "Nama", "NPP", "Divisi", "Jabatan",
-    "Jenis Pekerjaan", "Uraian Tugas", "jam", "menit", "total menit"
-  ];
+    let headerHTML = "<tr>";
+    fixedHeader.forEach(h => headerHTML += `<th>${h}</th>`);
+    headerHTML += "</tr>";
+    thead.innerHTML = headerHTML;
 
-  let headerHTML = "<tr>";
-  fixedHeader.forEach(h => headerHTML += `<th>${h}</th>`);
-  headerHTML += "</tr>";
-  thead.innerHTML = headerHTML;
-
-  data.slice(1).forEach(row => {
-    let rowHTML = "<tr>";
-
-    fixedHeader.forEach((_, index) => {
-      let cell = row[index] ?? "";
-      if (index === 1) cell = formatTanggal(cell);
-      rowHTML += `<td>${cell}</td>`;
+    data.slice(1).forEach(row => {
+      let rowHTML = "<tr>";
+      fixedHeader.forEach((_, index) => {
+        let cell = row[index] ?? "";
+        if (index === 1) cell = formatTanggal(cell);
+        rowHTML += `<td>${cell}</td>`;
+      });
+      rowHTML += "</tr>";
+      tbody.innerHTML += rowHTML;
     });
 
-    rowHTML += "</tr>";
-    tbody.innerHTML += rowHTML;
-  });
+  } catch (e) {
+    alert("Gagal mengambil data!");
+  }
+
+  loader.style.display = "none";   // Hilangkan loading
 }
 </script>
 
