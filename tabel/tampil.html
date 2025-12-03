@@ -2,10 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-
-  <!-- WAJIB: supaya responsive di HP -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Data Divisi</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -23,12 +20,6 @@
       padding: 15px !important;
     }
 
-    /* Tabel responsif di HP */
-    .table-responsive {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-
     table td, table th {
       white-space: nowrap;
       font-size: 14px;
@@ -40,16 +31,6 @@
       text-transform: uppercase;
     }
 
-    @media (max-width: 576px) {
-      h3 {
-        font-size: 18px;
-      }
-      select, button {
-        font-size: 16px !important;
-      }
-    }
-
-    /* === LOADING ANIMATION === */
     #loader {
       display: none;
       text-align: center;
@@ -69,6 +50,7 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
+
   </style>
 </head>
 <body>
@@ -76,14 +58,14 @@
 <div class="container-fluid px-0">
   <div class="card">
 
-    <h3 class="mb-3 text-center fw-bold text-primary">
-      DATA DIVISI – 50 BARIS TERBARU
-    </h3>
+    <h3 class="mb-3 text-center fw-bold text-primary">DATA DIVISI</h3>
 
-    <div class="row g-3">
+    <!-- PILIH DIVISI -->
+    <div class="row g-3 justify-content-center">
       <div class="col-12 col-md-6">
         <label class="form-label fw-semibold">Pilih Divisi:</label>
-        <select id="divisi" class="form-select form-select-lg">
+        <select id="divisi" class="form-select form-select-lg text-center">
+          <option value="">-- pilih Divisi ---</option>
           <option value="csi">CSI</option>
           <option value="hcc">HCC</option>
           <option value="ops">OPS</option>
@@ -96,22 +78,32 @@
           <option value="ina">INA</option>
         </select>
       </div>
+    </div>
 
-      <div class="col-12 col-md-6 d-flex align-items-end">
-        <button onclick="loadData()" class="btn btn-primary btn-lg w-100">
-          Tampilkan Data
-        </button>
+    <hr>
+
+    <!-- 3 BUTTON SEJAJAR -->
+    <div class="row g-2 text-center">
+      <div class="col-4">
+        <button onclick="cekWola()" class="btn btn-success w-100 btn-lg">Cek WOLA By 100 Data Terakhir </button>
+      </div>
+      <div class="col-4">
+        <button onclick="loadData()" class="btn btn-primary w-100 btn-lg">Lihat 100 Data Terakhir </button>
+      </div>
+      <div class="col-4">
+        <button onclick="clearTable()" class="btn btn-danger w-100 btn-lg">Clear</button>
       </div>
     </div>
 
-    <hr class="my-3">
+    <hr>
 
-    <!-- LOADING ANIMATION -->
+    <!-- LOADING -->
     <div id="loader">
       <div class="spinner"></div>
       <p class="mt-2 fw-semibold text-primary">Mengambil data, mohon tunggu...</p>
     </div>
 
+    <!-- TABEL DATA -->
     <div class="table-responsive">
       <table class="table table-bordered table-striped table-hover" id="tabelData">
         <thead id="thead"></thead>
@@ -119,47 +111,90 @@
       </table>
     </div>
 
+    <!-- TABEL WOLA -->
+    <div class="table-responsive mt-4">
+      <table class="table table-bordered table-striped" id="tabelWola">
+        <thead>
+          <tr class="table-success">
+            <th>Nama Pegawai</th>
+            <th>Total Menit</th>
+            <th>Jumlah Hari</th>
+            <th>Rata-rata</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyWola"></tbody>
+      </table>
+    </div>
+
   </div>
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbzo2CtZ4Y9rUd3jn1Tnez-9O-rJxh98yn_Cbgvy8ZW-NwcmOaQv3E43L9A_g3yTnfEbvw/exec";
+const API_URL =
+"https://script.google.com/macros/s/AKfycbxOLUkk8MbVxxLnYc5THFfbNY7C3lruKjXYOaXw_2kGNh9ReYoVYhbTrM1UV_9SRl3snQ/exec";
 
+let globalData = [];
+
+/* FORMAT TANGGAL */
 function formatTanggal(tgl) {
   if (!tgl) return "";
   const date = new Date(tgl);
   if (isNaN(date)) return tgl;
-
-  const d = String(date.getDate()).padStart(2, '0');
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const y = date.getFullYear();
-  return `${d}-${m}-${y}`;
+  return `${String(date.getDate()).padStart(2,'0')}-${String(date.getMonth()+1).padStart(2,'0')}-${date.getFullYear()}`;
 }
 
-async function loadData() {
-  const divisi = document.getElementById("divisi").value;
-  const loader = document.getElementById("loader");
-  
-  loader.style.display = "block";   // Tampilkan loading
+function clearTable() {
+  // Hapus tabel data
   document.getElementById("thead").innerHTML = "";
   document.getElementById("tbody").innerHTML = "";
+
+  // Hapus tabel wola
+  document.getElementById("tbodyWola").innerHTML = "";
+
+  // **TIDAK reset dropdown divisi**
+  // document.getElementById("divisi").value = "";
+
+  // Reset data global
+  globalData = [];
+
+  // Sembunyikan loader
+  document.getElementById("loader").style.display = "none";
+}
+
+/* LOAD 100 DATA */
+
+async function loadData() {
+  clearTable();
+  const divisi = document.getElementById("divisi").value;
+  const loader = document.getElementById("loader");
+
+  if (divisi === "") {
+    alert("Silakan pilih divisi terlebih dahulu.");
+    return;
+  }
+
+  loader.style.display = "block";
+  globalData = [];
 
   try {
     const res = await fetch(`${API_URL}?sheet=${divisi}`);
     const json = await res.json();
+    globalData = json.data;
 
     const data = json.data;
-    const thead = document.getElementById("thead");
-    const tbody = document.getElementById("tbody");
-
     if (!data || data.length === 0) {
       loader.style.display = "none";
       return;
     }
 
+    // HEADER
+    const thead = document.getElementById("thead");
+    const tbody = document.getElementById("tbody");
+
     const fixedHeader = [
-      "Timestamp", "Tanggal", "Nama", "NPP", "Divisi", "Jabatan",
-      "Jenis Pekerjaan", "Uraian Tugas", "jam", "menit", "total menit"
+      "Timestamp","Tanggal","Nama","NPP","Divisi","Jabatan",
+      "Jenis Pekerjaan","Uraian Tugas","jam","menit","total menit"
     ];
 
     let headerHTML = "<tr>";
@@ -167,11 +202,12 @@ async function loadData() {
     headerHTML += "</tr>";
     thead.innerHTML = headerHTML;
 
-    data.slice(1).forEach(row => {
+    // ISI — TAMPILKAN 100 BARIS TERAKHIR
+    data.slice(-100).forEach(row => {
       let rowHTML = "<tr>";
-      fixedHeader.forEach((_, index) => {
-        let cell = row[index] ?? "";
-        if (index === 1) cell = formatTanggal(cell);
+      fixedHeader.forEach((_, idx) => {
+        let cell = row[idx] ?? "";
+        if (idx === 1) cell = formatTanggal(cell);
         rowHTML += `<td>${cell}</td>`;
       });
       rowHTML += "</tr>";
@@ -182,8 +218,83 @@ async function loadData() {
     alert("Gagal mengambil data!");
   }
 
-  loader.style.display = "none";   // Hilangkan loading
+  loader.style.display = "none";
 }
+
+
+
+/* ========== CEK WOLA PER PEGAWAI ========== */
+async function cekWola() {
+  clearTable();
+
+  const divisi = document.getElementById("divisi").value;
+  if (divisi === "") {
+    alert("Silakan pilih divisi terlebih dahulu.");
+    return;
+  }
+
+  // Jika data belum tersedia → load otomatis
+  if (globalData.length === 0) {
+    const loader = document.getElementById("loader");
+    loader.style.display = "block";
+
+    try {
+      const res = await fetch(`${API_URL}?sheet=${divisi}`);
+      const json = await res.json();
+      globalData = json.data;
+    } catch (e) {
+      alert("Gagal mengambil data!");
+      return;
+    }
+
+    loader.style.display = "none";
+  }
+
+  if (!globalData || globalData.length === 0) {
+    alert("Data kosong!");
+    return;
+  }
+
+  const body = document.getElementById("tbodyWola");
+  const rows = globalData.slice(1);
+
+  let pegawai = {};
+
+  rows.forEach(r => {
+    const nama = r[2];
+    const tgl = formatTanggal(r[1]);
+    const menit = Number(r[10]) || 0;
+
+    if (!pegawai[nama]) {
+      pegawai[nama] = { total: 0, tanggal: new Set() };
+    }
+
+    pegawai[nama].total += menit;
+    pegawai[nama].tanggal.add(tgl);
+  });
+
+  for (let nama in pegawai) {
+    const total = pegawai[nama].total;
+    const hari = pegawai[nama].tanggal.size;
+    const rata = Math.round(total / hari);
+
+    let status = "";
+    if (rata < 360) status = `<span class="badge bg-danger">Underload</span>`;
+    else if (rata <= 480) status = `<span class="badge bg-success">Fit</span>`;
+    else status = `<span class="badge bg-warning text-dark">Overload</span>`;
+
+    body.innerHTML += `
+      <tr>
+        <td>${nama}</td>
+        <td>${total}</td>
+        <td>${hari}</td>
+        <td>${rata} menit</td>
+        <td>${status}</td>
+      </tr>
+    `;
+  }
+}
+
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
