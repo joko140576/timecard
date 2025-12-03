@@ -17,9 +17,9 @@ function doGet(e) {
 
   let data = sheet.getDataRange().getValues();
 
-  // Ambil 50 baris terakhir
-  if (data.length > 50) {
-    data = data.slice(data.length - 50);
+  // Ambil 100 baris terakhir
+  if (data.length > 100) {
+    data = data.slice(data.length - 100);
   }
 
   return ContentService
