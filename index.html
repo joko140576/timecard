@@ -220,7 +220,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-const scriptURL = "https://script.google.com/macros/s/AKfycbwm0qQijBolBqL5vMhRVutcWXzrTwz2XDiPgM3_OSayqiOAjl3nf5QCAEnH3VpsCltqbA/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbxmx1C5XGVLzp6kcpMBz8KbWdtZ4ZyWjgECQRr5wFcy4vV1y06ARma2R7RxcuXkt9TE7w/exec";
 
 document.getElementById("btnGuide").addEventListener("click", () => {
   const box = document.getElementById("guideBox");
@@ -307,9 +307,14 @@ document.getElementById("timeCardForm").addEventListener("submit", e => {
     tasks: tasks
   };
 
-  fetch(scriptURL, { method: "POST", body: JSON.stringify(data) })
-    .then(res => res.text())
-    .then(() => {
+  fetch(scriptURL + "?data=" + encodeURIComponent(JSON.stringify(data)))
+  .then(res => res.json())
+  .then(res => {
+      console.log(res);
+      alert("Data berhasil dikirim!");
+  })
+  .catch(err => console.error(err));
+
 
       document.getElementById("loadingOverlay").style.display = "none";
 
